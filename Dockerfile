@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends git curl jq ope
   ssh-keyscan github.com >> /root/.ssh/known_hosts && \
   chmod 600 /root/.ssh/known_hosts
 
-EXPOSE 9100
+EXPOSE 32110
 
 WORKDIR /crawler
 ADD run.sh .
