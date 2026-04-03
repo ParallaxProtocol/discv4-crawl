@@ -1,12 +1,12 @@
 FROM golang:latest
 
 ENV CRAWL_GIT_REPO=https://github.com/ParallaxProtocol/discv4-dns-lists.git \
-  CRAWL_GIT_BRANCH=master \
+  CRAWL_GIT_BRANCH=main \
   CRAWL_GIT_PUSH=false \
   CRAWL_GIT_USER=crawler \
   CRAWL_GIT_EMAIL=crawler@localhost \
-  CRAWL_DNS_DOMAIN=nodes.example.local \
-  CRAWL_TIMEOUT=30m \
+  CRAWL_DNS_DOMAIN=nodes.parallaxprotocol.org \
+  CRAWL_TIMEOUT=10m \
   CRAWL_INTERVAL=300 \
   CRAWL_RUN_ONCE=false \
   CRAWL_DNS_SIGNING_KEY=/secrets/key.json \
@@ -22,7 +22,7 @@ ENV CRAWL_GIT_REPO=https://github.com/ParallaxProtocol/discv4-dns-lists.git \
   INFLUXDB_DB=metrics \
   INFLUXDB_USER=user \
   INFLUXDB_PASSWORD=password \
-  PROMETHEUS_METRICS_ENABLED=true \
+  PROMETHEUS_METRICS_ENABLED=false \
   PROMETHEUS_METRICS_LISTEN=0.0.0.0:9100
 
 RUN apt-get update && apt-get install -y --no-install-recommends git curl jq openssh-client && \
