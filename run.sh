@@ -40,7 +40,7 @@ parallax_src="$PWD/parallax"
 git_update_repo() {
   upstream=$1
   repodir=$2
-  branch=${3:-master}
+  branch=${3:-main}
 
   if [[ -d $repodir/.git ]]; then
     (
