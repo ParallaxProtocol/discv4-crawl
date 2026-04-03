@@ -21,6 +21,8 @@ CRAWL_DNS_PUBLISH_CLOUDFLARE="${CRAWL_DNS_PUBLISH_CLOUDFLARE-false}"
 CLOUDFLARE_API_TOKEN="${CLOUDFLARE_API_TOKEN-}"
 CLOUDFLARE_ZONE_ID="${CLOUDFLARE_ZONE_ID-}"
 
+CRAWL_BOOTNODES="${CRAWL_BOOTNODES:-}"
+
 INFLUXDB_METRICS_ENABLED="${INFLUXDB_METRICS_ENABLED:-false}"
 INFLUXDB_URL="${INFLUXDB_URL:-http://localhost:8086}"
 INFLUXDB_DB="${INFLUXDB_DB:-metrics}"
@@ -68,7 +70,11 @@ filter_list() {
 }
 
 generate_list() {
-  devp2p discv4 crawl -timeout "$CRAWL_TIMEOUT" all.json
+  if [ -n "$CRAWL_BOOTNODES" ]; then
+    devp2p discv4 crawl --timeout "$CRAWL_TIMEOUT" --bootnodes "$CRAWL_BOOTNODES" all.json
+  else
+    devp2p discv4 crawl --timeout "$CRAWL_TIMEOUT" all.json
+  fi
 
   # Mainnet
   filter_list mainnet all -limit 3000
