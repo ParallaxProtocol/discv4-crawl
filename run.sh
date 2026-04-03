@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CRAWL_GIT_REPO="${CRAWL_GIT_REPO:-https://github.com/ParallaxProtocol/discv4-dns-lists.git}"
-CRAWL_GIT_BRANCH="${CRAWL_GIT_BRANCH:-master}"
+CRAWL_GIT_BRANCH="${CRAWL_GIT_BRANCH:-main}"
 CRAWL_GIT_PUSH="${CRAWL_GIT_PUSH:-false}"
 CRAWL_GIT_USER="${CRAWL_GIT_USER:-crawler}"
 CRAWL_GIT_EMAIL="${CRAWL_GIT_EMAIL:-crawler@localhost}"
