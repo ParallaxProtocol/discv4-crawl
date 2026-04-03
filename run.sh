@@ -74,11 +74,6 @@ generate_list() {
   filter_list mainnet all -limit 3000
   filter_list mainnet les -limit 200 -les-server
   filter_list mainnet snap -limit 500 -snap
-
-  # Testnet
-  filter_list testnet all -limit 500
-  filter_list testnet les -limit 50 -les-server
-  filter_list testnet snap -limit 50 -snap
 }
 
 sign_lists() {
