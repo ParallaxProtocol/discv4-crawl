@@ -72,9 +72,9 @@ filter_list() {
 
 generate_list() {
   if [ -n "$CRAWL_BOOTNODES" ]; then
-    timeout "${CRAWL_TIMEOUT}" devp2p discv4 crawl --timeout "${CRAWL_TIMEOUT}" --bootnodes "$CRAWL_BOOTNODES" --addr "${CRAWL_LISTEN_ADDR}" all.json || true
+    devp2p discv4 crawl --parallel 4 --timeout "${CRAWL_TIMEOUT}" --bootnodes "$CRAWL_BOOTNODES" --addr "${CRAWL_LISTEN_ADDR}" all.json
   else
-    timeout "${CRAWL_TIMEOUT}" devp2p discv4 crawl --timeout "${CRAWL_TIMEOUT}" --addr "${CRAWL_LISTEN_ADDR}" all.json || true
+    devp2p discv4 crawl --parallel 4 --timeout "${CRAWL_TIMEOUT}" --addr "${CRAWL_LISTEN_ADDR}" all.json
   fi
 
   filter_list mainnet all -limit 3000
