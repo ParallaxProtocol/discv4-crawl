@@ -6,12 +6,13 @@ CRAWL_GIT_PUSH="${CRAWL_GIT_PUSH:-false}"
 CRAWL_GIT_USER="${CRAWL_GIT_USER:-crawler}"
 CRAWL_GIT_EMAIL="${CRAWL_GIT_EMAIL:-crawler@localhost}"
 
-CRAWL_DNS_DOMAIN="${CRAWL_DNS_DOMAIN:-nodes.example.local}"
+CRAWL_DNS_DOMAIN="${CRAWL_DNS_DOMAIN:-prlxdisc.org}"
 CRAWL_TIMEOUT="${CRAWL_TIMEOUT:-30m}"
 CRAWL_INTERVAL="${CRAWL_INTERVAL:-300}"
 CRAWL_RUN_ONCE="${CRAWL_RUN_ONCE:-false}"
 CRAWL_DNS_SIGNING_KEY="${CRAWL_DNS_SIGNING_KEY:-/secrets/key.json}"
 CRAWL_LISTEN_ADDR="${CRAWL_LISTEN_ADDR:-0.0.0.0:32110}"
+CRAWL_PARALLEL="${CRAWL_PARALLEL:-16}"
 
 CRAWL_DNS_PUBLISH_ROUTE53="${CRAWL_DNS_PUBLISH_ROUTE53-false}"
 ROUTE53_ZONE_ID="${ROUTE53_ZONE_ID-}"
@@ -72,9 +73,9 @@ filter_list() {
 
 generate_list() {
   if [ -n "$CRAWL_BOOTNODES" ]; then
-    devp2p discv4 crawl --parallel 4 --timeout "${CRAWL_TIMEOUT}" --bootnodes "$CRAWL_BOOTNODES" all.json
+    devp2p discv4 crawl -parallel "${CRAWL_PARALLEL}" -timeout "${CRAWL_TIMEOUT}" -bootnodes "$CRAWL_BOOTNODES" --addr "${CRAWL_LISTEN_ADDR}" all.json
   else
-    devp2p discv4 crawl --parallel 4 --timeout "${CRAWL_TIMEOUT}" all.json
+    devp2p discv4 crawl -parallel "${CRAWL_PARALLEL}" -timeout "${CRAWL_TIMEOUT}" -addr "${CRAWL_LISTEN_ADDR}" all.json
   fi
 
   filter_list mainnet all -limit 3000
