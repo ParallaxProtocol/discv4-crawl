@@ -11,7 +11,6 @@ CRAWL_TIMEOUT="${CRAWL_TIMEOUT:-30m}"
 CRAWL_INTERVAL="${CRAWL_INTERVAL:-300}"
 CRAWL_RUN_ONCE="${CRAWL_RUN_ONCE:-false}"
 CRAWL_DNS_SIGNING_KEY="${CRAWL_DNS_SIGNING_KEY:-/secrets/key.json}"
-CRAWL_BOOTNODES="${CRAWL_BOOTNODES:-}"
 
 CRAWL_DNS_PUBLISH_ROUTE53="${CRAWL_DNS_PUBLISH_ROUTE53-false}"
 ROUTE53_ZONE_ID="${ROUTE53_ZONE_ID-}"
@@ -69,11 +68,7 @@ filter_list() {
 }
 
 generate_list() {
-  if [ -n "$CRAWL_BOOTNODES" ]; then
-    devp2p discv4 crawl -timeout "${CRAWL_TIMEOUT}" -bootnodes "$CRAWL_BOOTNODES" all.json || return 1
-  else
-    devp2p discv4 crawl -timeout "${CRAWL_TIMEOUT}" all.json || return 1
-  fi
+  devp2p discv4 crawl -timeout "${CRAWL_TIMEOUT}" all.json || return 1
 
   filter_list mainnet all -limit 3000 || return 1
   filter_list mainnet les -limit 200 -les-server || return 1
