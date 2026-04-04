@@ -11,8 +11,7 @@ CRAWL_TIMEOUT="${CRAWL_TIMEOUT:-30m}"
 CRAWL_INTERVAL="${CRAWL_INTERVAL:-300}"
 CRAWL_RUN_ONCE="${CRAWL_RUN_ONCE:-false}"
 CRAWL_DNS_SIGNING_KEY="${CRAWL_DNS_SIGNING_KEY:-/secrets/key.json}"
-CRAWL_LISTEN_ADDR="${CRAWL_LISTEN_ADDR:-0.0.0.0:32110}"
-CRAWL_PARALLEL="${CRAWL_PARALLEL:-16}"
+CRAWL_BOOTNODES="${CRAWL_BOOTNODES:-}"
 
 CRAWL_DNS_PUBLISH_ROUTE53="${CRAWL_DNS_PUBLISH_ROUTE53-false}"
 ROUTE53_ZONE_ID="${ROUTE53_ZONE_ID-}"
@@ -22,8 +21,6 @@ AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY-}"
 CRAWL_DNS_PUBLISH_CLOUDFLARE="${CRAWL_DNS_PUBLISH_CLOUDFLARE-false}"
 CLOUDFLARE_API_TOKEN="${CLOUDFLARE_API_TOKEN-}"
 CLOUDFLARE_ZONE_ID="${CLOUDFLARE_ZONE_ID-}"
-
-CRAWL_BOOTNODES="${CRAWL_BOOTNODES:-}"
 
 INFLUXDB_METRICS_ENABLED="${INFLUXDB_METRICS_ENABLED:-false}"
 INFLUXDB_URL="${INFLUXDB_URL:-http://localhost:8086}"
@@ -67,26 +64,26 @@ filter_list() {
   name="$2"
   shift 2
 
-  mkdir -p "${name}.${network}.${CRAWL_DNS_DOMAIN}"
-  devp2p nodeset filter all.json -parallax-network "$network" $@ >"${name}.${network}.${CRAWL_DNS_DOMAIN}/nodes.json"
+  mkdir -p "${name}.${network}.${CRAWL_DNS_DOMAIN}" || return 1
+  devp2p nodeset filter all.json -parallax-network "$network" $@ >"${name}.${network}.${CRAWL_DNS_DOMAIN}/nodes.json" || return 1
 }
 
 generate_list() {
   if [ -n "$CRAWL_BOOTNODES" ]; then
-    devp2p discv4 crawl -parallel "${CRAWL_PARALLEL}" -timeout "${CRAWL_TIMEOUT}" -bootnodes "$CRAWL_BOOTNODES" --addr "${CRAWL_LISTEN_ADDR}" all.json
+    devp2p discv4 crawl -timeout "${CRAWL_TIMEOUT}" -bootnodes "$CRAWL_BOOTNODES" all.json || return 1
   else
-    devp2p discv4 crawl -parallel "${CRAWL_PARALLEL}" -timeout "${CRAWL_TIMEOUT}" -addr "${CRAWL_LISTEN_ADDR}" all.json
+    devp2p discv4 crawl -timeout "${CRAWL_TIMEOUT}" all.json || return 1
   fi
 
-  filter_list mainnet all -limit 3000
-  filter_list mainnet les -limit 200 -les-server
-  filter_list mainnet snap -limit 500 -snap
+  filter_list mainnet all -limit 3000 || return 1
+  filter_list mainnet les -limit 200 -les-server || return 1
+  filter_list mainnet snap -limit 500 -snap || return 1
 }
 
 sign_lists() {
   for D in *."${CRAWL_DNS_DOMAIN}"; do
     if [ -d "${D}" ]; then
-      echo "" | devp2p dns sign "${D}" "$CRAWL_DNS_SIGNING_KEY"
+      echo "" | devp2p dns sign "${D}" "$CRAWL_DNS_SIGNING_KEY" || return 1
     fi
   done
 }
@@ -94,7 +91,7 @@ sign_lists() {
 publish_dns_cloudflare() {
   for D in *."${CRAWL_DNS_DOMAIN}"; do
     if [ -d "${D}" ]; then
-      devp2p dns to-cloudflare -zoneid "$CLOUDFLARE_ZONE_ID" "${D}"
+      devp2p dns to-cloudflare -zoneid "$CLOUDFLARE_ZONE_ID" "${D}" || return 1
     fi
   done
 }
@@ -102,16 +99,16 @@ publish_dns_cloudflare() {
 publish_dns_route53() {
   for D in *."${CRAWL_DNS_DOMAIN}"; do
     if [ -d "${D}" ]; then
-      devp2p dns to-route53 -zone-id "$ROUTE53_ZONE_ID" "${D}"
+      devp2p dns to-route53 -zone-id "$ROUTE53_ZONE_ID" "${D}" || return 1
     fi
   done
 }
 
 git_push_crawler_output() {
   if [ -n "$(git status --porcelain)" ]; then
-    git add all.json ./*."${CRAWL_DNS_DOMAIN}"/*.json
-    git commit --message "automatic update: crawl time $CRAWL_TIMEOUT"
-    git push origin "$CRAWL_GIT_BRANCH"
+    git add all.json ./*."${CRAWL_DNS_DOMAIN}"/*.json || return 1
+    git commit --message "automatic update: crawl time $CRAWL_TIMEOUT" || return 1
+    git push origin "$CRAWL_GIT_BRANCH" || return 1
   fi
 }
 
